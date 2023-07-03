@@ -4,12 +4,12 @@ def parse_beer_result(result) :
     beer_dict={}
 
     for row in result :
-        beer_id=row[0]
+        id=row[0]
 
-        if beer_id not in beer_dict :
-            beer_dict[beer_id]={
-                "beer_id" :beer_id,
-                "name" :row[1],
+        if id not in beer_dict :
+            beer_dict[id]={
+                "id" : id,
+                "name": row[1],
                 "type" :row[2],
                 "color" :row[3],
                 "alcohol" :row[4],
@@ -37,8 +37,8 @@ def parse_beer_result(result) :
             "temperature" :row[12],
             "time" :row[13]
         }
-        if fermentation not in beer_dict[beer_id]["fermentation"]:
-            beer_dict[beer_id]["fermentation"].append(fermentation)
+        if fermentation not in beer_dict[id]["fermentation"]:
+            beer_dict[id]["fermentation"].append(fermentation)
         # Malts hinzufügen
         malt={
             "name" :row[14],
@@ -46,8 +46,8 @@ def parse_beer_result(result) :
             "EBC" :row[16],
             "quantity" :row[17]
         }
-        if malt not in beer_dict[beer_id]["malts"]:
-            beer_dict[beer_id]["malts"].append(malt)
+        if malt not in beer_dict[id]["malts"]:
+            beer_dict[id]["malts"].append(malt)
 
         # Hops hinzufügen
         hop={
@@ -57,8 +57,8 @@ def parse_beer_result(result) :
             "quantity" :row[22],
             "time" :row[23],
         }
-        if hop not in beer_dict[beer_id]["wortBoiling"]["hops"]:
-            beer_dict[beer_id]["wortBoiling"]["hops"].append(hop)
+        if hop not in beer_dict[id]["wortBoiling"]["hops"]:
+            beer_dict[id]["wortBoiling"]["hops"].append(hop)
 
         # Yeast hinzufügen
         yeast={
@@ -68,8 +68,8 @@ def parse_beer_result(result) :
             "temperature" :row[29],
             "type" :row[30]
         }
-        if yeast not in beer_dict[beer_id]["fermentationMaturation"]["yeast"]:
-            beer_dict[beer_id]["fermentationMaturation"]["yeast"].append(yeast)
+        if yeast not in beer_dict[id]["fermentationMaturation"]["yeast"]:
+            beer_dict[id]["fermentationMaturation"]["yeast"].append(yeast)
 
     beers=list(beer_dict.values())
     return beers

@@ -2,6 +2,9 @@ import json
 import sqlite3
 import json
 import beerModel
+import hopsModel
+import maltsModel
+import yeastsModel
 
 
 class BeerDatabase:
@@ -26,7 +29,7 @@ class BeerDatabase:
             cursor=conn.cursor()
             cursor.execute("""
          SELECT DISTINCT
-         Beer.id,
+    Beer.id,
     Beer.name,
     Beer.type,
     Beer.color,
@@ -52,11 +55,11 @@ class BeerDatabase:
     BeerHops.time AS hopTime,
     FermentationMaturation.fermentationTemperature AS fermentationMaturationTemperature,
     FermentationMaturation.carbonation AS fermentationMaturationCarbonation,
-    Yeast.name AS yeastName,
-    Yeast.description AS yeastDescription,
-    Yeast.EVG AS yeastEVG,
-    Yeast.temperature AS yeastTemperature,
-    Yeast.type AS yeastType
+    Yeasts.name AS yeastName,
+    Yeasts.description AS yeastDescription,
+    Yeasts.EVG AS yeastEVG,
+    Yeasts.temperature AS yeastTemperature,
+    Yeasts.type AS yeastType
 FROM
     Beer
 LEFT JOIN
@@ -76,16 +79,16 @@ LEFT JOIN
 LEFT JOIN
     BeerYeast ON Beer.id = BeerYeast.beer_id
 LEFT JOIN
-    Yeast ON BeerYeast.yeast_id = Yeast.id;
+    Yeasts ON BeerYeast.yeast_id = Yeasts.id;
             """)
             beers=cursor.fetchall()
             b = beerModel.parse_beer_result(beers)
             jso = json.dumps(b, indent = 4)
-            print(b)
             return jso
     def add_beer(self, data):
         with self.get_connection() as conn:
             cursor = conn.cursor()
+            print(data)
             query = "INSERT INTO Beer (name, type, color, alcohol, originalwort, bitterness, description, rating, mashVolume,spargeVolume) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ? ,?)"
             values = (data['name'], data['type'], data['color'], data['alcohol'], data['originalwort'], data['bitterness'], data['description'], data['rating'], data['mashVolume'], data['spargeVolume'])
             cursor.execute(query, values)
@@ -165,21 +168,24 @@ LEFT JOIN
         with self.get_connection() as conn:
             cursor = conn.cursor()
             cursor.execute("SELECT * FROM Malts")
-            Malts = cursor.fetchall()
-            return Malts
+            malts = maltsModel.parse_malts_result(cursor.fetchall())
+            jsonMalts = json.dumps(malts, indent=4)
+            return jsonMalts
 
-    def get_Hops(self):
+    def get_hops(self):
         with self.get_connection() as conn:
             cursor = conn.cursor()
             cursor.execute("SELECT * FROM Hops")
-            Hops = cursor.fetchall()
-            return Hops
+            hops = hopsModel.parse_hops_result(cursor.fetchall())
+            jsonHops = json.dumps(hops, indent=4)
+            return jsonHops
 
-    def get_Yeasts(self):
+    def get_yeasts(self):
         with self.get_connection() as conn:
             cursor = conn.cursor()
             cursor.execute("SELECT * FROM Yeasts")
-            Yeasts = cursor.fetchall()
-            return Yeasts
+            yeasts = yeastsModel.parse_yeasts_result(cursor.fetchall())
+            jsonYeasts = json.dumps(yeasts, indent=4)
+            return jsonYeasts
 
 

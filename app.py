@@ -1,8 +1,9 @@
 from flask import Flask, jsonify, request
+from flask_cors import CORS
 from BeerDatabase import BeerDatabase
 
 app = Flask(__name__)
-
+CORS(app)
 # Instanz der BeerDatabase-Klasse erstellen
 beer_db = BeerDatabase('beer')
 beer_db.connect()
@@ -20,6 +21,12 @@ def add_beer():
     beer_db.add_beer(data)
     return jsonify(message="Beer added successfully")
 
+@app.route('/beers', methods=['OPTIONS'])
+def add_bee():
+    data = request.get_json()
+    beer_db.add_beer(data)
+    return jsonify(message="Beer added successfully")
+
 @app.route('/malts', methods=['POST'])
 def add_malts():
     data = request.get_json()
@@ -29,6 +36,7 @@ def add_malts():
 @app.route('/malts', methods=['GET'])
 def get_malts():
     malts = beer_db.get_malts()
+
     return jsonify(malts)
 
 @app.route('/hops', methods=['POST'])
@@ -48,9 +56,9 @@ def add_yeast():
     beer_db.add_Yeast(data['name'], data['description'], data['alcohol'])
     return jsonify(message="Yeast added successfully")
 
-@app.route('/yeast', methods=['GET'])
+@app.route('/yeasts', methods=['GET'])
 def get_yeast():
-    yeast = beer_db.get_yeast()
+    yeast = beer_db.get_yeasts()
     return jsonify(yeast)
 
 @app.route('/fermentation', methods=['POST'])

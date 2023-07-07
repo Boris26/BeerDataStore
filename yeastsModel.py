@@ -10,8 +10,10 @@ def parse_yeasts_result(result) :
             yeast_dict[id]={
                 "id" : id,
                 "name": row[1],
-                "description" :row[2],
-                "attenuation" :row[3],
+                "evg" :row[2],
+                "temperature" :row[3],
+                "type" :row[4],
+                "description" :row[5],
             }
     for key in yeast_dict :
         yeasts.append(yeast_dict[key])

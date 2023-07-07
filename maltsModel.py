@@ -11,7 +11,7 @@ def parse_malts_result(result) :
                 "id" : id,
                 "name": row[1],
                 "description" :row[2],
-                "EBC" :row[3],
+                "ebc" :row[3],
             }
     for key in malt_dict :
         malts.append(malt_dict[key])

@@ -15,22 +15,16 @@ def get_beers():
     return jsonify(beers)
 
 # API-Endpunkt zum Hinzufügen eines neuen Bierdatensatzes
-@app.route('/beers', methods=['POST'])
+@app.route('/beer', methods=['POST'])
 def add_beer():
     data = request.get_json()
     beer_db.add_beer(data)
     return jsonify(message="Beer added successfully")
 
-@app.route('/beers', methods=['OPTIONS'])
-def add_bee():
-    data = request.get_json()
-    beer_db.add_beer(data)
-    return jsonify(message="Beer added successfully")
-
-@app.route('/malts', methods=['POST'])
+@app.route('/malt', methods=['POST'])
 def add_malts():
     data = request.get_json()
-    beer_db.add_Malts(data['name'], data['description'], data['ebc'])
+    beer_db.add_Malts(data)
     return jsonify(message="Malts added successfully")
 
 @app.route('/malts', methods=['GET'])
@@ -39,10 +33,10 @@ def get_malts():
 
     return jsonify(malts)
 
-@app.route('/hops', methods=['POST'])
+@app.route('/hop', methods=['POST'])
 def add_hops():
     data = request.get_json()
-    beer_db.add_Hops(data['name'], data['description'], data['alpha'])
+    beer_db.add_Hop(data)
     return jsonify(message="Hops added successfully")
 
 @app.route('/hops', methods=['GET'])
@@ -53,8 +47,20 @@ def get_hops():
 @app.route('/yeast', methods=['POST'])
 def add_yeast():
     data = request.get_json()
-    beer_db.add_Yeast(data['name'], data['description'], data['alcohol'])
-    return jsonify(message="Yeast added successfully")
+    try:
+        beer_db.add_Yeast(data)
+        return jsonify(message="Yeast added successfully"),200
+    except Exception as e:
+        return jsonify(error=str(e)),201
+@app.errorhandler(404)
+def not_found():
+    return jsonify(message="Endpoint not found"), 404
+
+@app.errorhandler(500)
+def internal_server_error():
+    return jsonify(message="Internal server error"), 500
+
+
 
 @app.route('/yeasts', methods=['GET'])
 def get_yeast():

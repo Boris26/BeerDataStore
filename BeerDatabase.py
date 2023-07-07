@@ -140,29 +140,32 @@ LEFT JOIN
 
 
 
-    def add_Malts(self,name,description,ebc):
+    def add_Malts(self,data):
         with self.get_connection() as conn:
             cursor = conn.cursor()
             query = "INSERT INTO Malts (name, description, ebc) VALUES (?, ?, ?)"
-            values = (name, description, ebc)
+            values = (data['name'],data['description'], data['ebc'])
             cursor.execute(query, values)
             conn.commit()
 
-    def add_Hops(self,name,description,alpha):
+    def add_Hop(self,data):
         with self.get_connection() as conn:
             cursor = conn.cursor()
-            query = "INSERT INTO Hops (name, description, alpha) VALUES (?, ?, ?)"
-            values = (name, description, alpha)
+            query = "INSERT INTO Hops (name, description, type ,alpha) VALUES (?, ?, ?,?)"
+            values = (data['name'],data['description'], data['type'] ,data['alpha'])
             cursor.execute(query, values)
             conn.commit()
 
-    def add_Yeasts(self,name,description,attenuation):
+    def add_Yeast(self, data):
         with self.get_connection() as conn:
             cursor = conn.cursor()
-            query = "INSERT INTO Yeasts (name, description, attenuation) VALUES (?, ?, ?)"
-            values = (name, description, attenuation)
-            cursor.execute(query, values)
-            conn.commit()
+            query = "INSERT INTO Yeasts (name,evg,description,temperature, type) VALUES (?, ?, ?, ?,?)"
+            values = (data['name'],data['evg'],data['description'], data['temperature'], data['type'], )
+            try:
+                cursor.execute(query, values)
+                conn.commit()
+            except Exception as e:
+                raise Exception("Failed to insert yeast into the database: " + str(e))
 
     def get_malts(self):
         with self.get_connection() as conn:

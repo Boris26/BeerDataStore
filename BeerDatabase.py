@@ -40,6 +40,8 @@ class BeerDatabase:
     Beer.rating,
     Beer.mashVolume,
     Beer.spargeVolume,
+    Beer.cookingTime,
+    Beer.cookingTemperatur,
     FermentationSteps.type AS fermentationType,
     FermentationSteps.temperature AS fermentationTemperature,
     FermentationSteps.time AS fermentationTime,
@@ -89,8 +91,8 @@ LEFT JOIN
         with self.get_connection() as conn:
             cursor = conn.cursor()
             print(data)
-            query = "INSERT INTO Beer (name, type, color, alcohol, originalwort, bitterness, description, rating, mashVolume,spargeVolume) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ? ,?)"
-            values = (data['name'], data['type'], data['color'], data['alcohol'], data['originalwort'], data['bitterness'], data['description'], data['rating'], data['mashVolume'], data['spargeVolume'])
+            query = "INSERT INTO Beer (name, type, color, alcohol, originalwort, bitterness, description, rating, mashVolume,spargeVolume,cookingTime,cookingTemperatur) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ? ,?,?,?)"
+            values = (data['name'], data['type'], data['color'], data['alcohol'], data['originalwort'], data['bitterness'], data['description'], data['rating'], data['mashVolume'], data['spargeVolume'], data['cookingTime'], data['cookingTemperatur'])
             cursor.execute(query, values)
             self.lastId = cursor.lastrowid
             conn.commit()

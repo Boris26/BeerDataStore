@@ -19,54 +19,56 @@ def parse_beer_result(result) :
                 "rating" :row[8],
                 "mashVolume" :row[9],
                 "spargeVolume" :row[10],
+                "cookingTime" :row[11],
+                "cookingTemperatur" :row[12],
                 "fermentation" :[],
                 "malts" :[],
                 "wortBoiling" :{
-                    "totalTime" :row[18],
+                    "totalTime" :row[20],
                     "hops" :[]
                 },
                 "fermentationMaturation" :{
-                    "fermentationTemperature" :row[24],
-                    "carbonation" :row[25],
+                    "fermentationTemperature" :row[26],
+                    "carbonation" :row[27],
                     "yeast" :[]
                 }
             }
 
         fermentation={
-            "type" :row[11],
-            "temperature" :row[12],
-            "time" :row[13]
+            "type" :row[13],
+            "temperature" :row[14],
+            "time" :row[15]
         }
         if fermentation not in beer_dict[id]["fermentation"]:
             beer_dict[id]["fermentation"].append(fermentation)
         # Malts hinzufügen
         malt={
-            "name" :row[14],
-            "description" :row[15],
-            "EBC" :row[16],
-            "quantity" :row[17]
+            "name" :row[16],
+            "description" :row[17],
+            "EBC" :row[18],
+            "quantity" :row[19]
         }
         if malt not in beer_dict[id]["malts"]:
             beer_dict[id]["malts"].append(malt)
 
         # Hops hinzufügen
         hop={
-            "name" :row[19],
-            "description" :row[20],
-            "alpha" :row[21],
-            "quantity" :row[22],
-            "time" :row[23],
+            "name" :row[21],
+            "description" :row[22],
+            "alpha" :row[23],
+            "quantity" :row[24],
+            "time" :row[25],
         }
         if hop not in beer_dict[id]["wortBoiling"]["hops"]:
             beer_dict[id]["wortBoiling"]["hops"].append(hop)
 
         # Yeast hinzufügen
         yeast={
-            "name" :row[26],
-            "description" :row[27],
-            "EVG" :row[28],
-            "temperature" :row[29],
-            "type" :row[30]
+            "name" :row[28],
+            "description" :row[29],
+            "EVG" :row[30],
+            "temperature" :row[31],
+            "type" :row[32]
         }
         if yeast not in beer_dict[id]["fermentationMaturation"]["yeast"]:
             beer_dict[id]["fermentationMaturation"]["yeast"].append(yeast)

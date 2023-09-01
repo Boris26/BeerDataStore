@@ -89,7 +89,10 @@ def get_fermentationmaturation():
     fermentationmaturation = beer_db.get_fermentationmaturation()
     return jsonify(fermentationmaturation)
 
-
+@app.route('/temperatur', methods=['GET'])
+def get_temperature():
+    temperature = 20
+    return jsonify(temperature)
 
 
 

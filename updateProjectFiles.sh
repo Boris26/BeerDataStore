@@ -1,0 +1,1 @@
+scp /home/boris/Entwicklung/BeerDataStore/toServer/* boris@192.168.178.72:/home/boris/BeerDatabase

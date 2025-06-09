@@ -1,19 +1,22 @@
 import json
 import sqlite3
-import json
 import beerModel
 import hopsModel
 import maltsModel
 import yeastsModel
+import sql_queries
 
 
 class BeerDatabase:
     def __init__(self, db_name):
         self.db_name = db_name
-        self.lastId = 0
+        self.last_id = 0
+        self.connection = None
+        self.cursor = None
 
-    def get_connection(self) :
+    def get_connection(self):
         return sqlite3.connect(self.db_name)
+
     def connect(self):
         self.connection = sqlite3.connect(self.db_name)
         self.cursor = self.connection.cursor()
@@ -25,144 +28,99 @@ class BeerDatabase:
             self.connection.close()
 
     def get_beers(self):
-        with self.get_connection() as conn :
-            cursor=conn.cursor()
-            cursor.execute("""
-         SELECT DISTINCT
-    Beer.id,
-    Beer.name,
-    Beer.type,
-    Beer.color,
-    Beer.alcohol,
-    Beer.originalwort,
-    Beer.bitterness,
-    Beer.description,
-    Beer.rating,
-    Beer.mashVolume,
-    Beer.spargeVolume,
-    Beer.cookingTime,
-    Beer.cookingTemperatur,
-    FermentationSteps.type AS fermentationType,
-    FermentationSteps.temperature AS fermentationTemperature,
-    FermentationSteps.time AS fermentationTime,
-    Malts.name AS maltName,
-    Malts.description AS maltDescription,
-    Malts.EBC AS maltEBC,
-    BeerMalts.quantity AS maltQuantity,
-    WortBoiling.totalTime AS wortBoilingTotalTime,
-    Hops.name AS hopName,
-    Hops.description AS hopDescription,
-    Hops.alpha AS hopAlpha,
-    BeerHops.quantity AS hopQuantity,
-    BeerHops.time AS hopTime,
-    FermentationMaturation.fermentationTemperature AS fermentationMaturationTemperature,
-    FermentationMaturation.carbonation AS fermentationMaturationCarbonation,
-    Yeasts.name AS yeastName,
-    Yeasts.description AS yeastDescription,
-    Yeasts.EVG AS yeastEVG,
-    Yeasts.temperature AS yeastTemperature,
-    Yeasts.type AS yeastType
-FROM
-    Beer
-LEFT JOIN
-    FermentationSteps ON Beer.id = FermentationSteps.beer_id
-LEFT JOIN
-    BeerMalts ON Beer.id = BeerMalts.beer_id
-LEFT JOIN
-    Malts ON BeerMalts.malts_id = Malts.id
-LEFT JOIN
-    WortBoiling ON Beer.id = WortBoiling.beer_id
-LEFT JOIN
-    BeerHops ON Beer.id = BeerHops.beer_id
-LEFT JOIN
-    Hops ON BeerHops.hops_id = Hops.id
-LEFT JOIN
-    FermentationMaturation ON Beer.id = FermentationMaturation.beer_id
-LEFT JOIN
-    BeerYeast ON Beer.id = BeerYeast.beer_id
-LEFT JOIN
-    Yeasts ON BeerYeast.yeast_id = Yeasts.id;
-            """)
-            beers=cursor.fetchall()
+        with self.get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute(sql_queries.GET_BEERS)
+            beers = cursor.fetchall()
             b = beerModel.parse_beer_result(beers)
-            jso = json.dumps(b, indent = 4)
-            return jso
+            return b  # Rückgabe als Objekt, nicht als JSON-String
+
     def add_beer(self, data):
         with self.get_connection() as conn:
             cursor = conn.cursor()
-            print(data)
-            query = "INSERT INTO Beer (name, type, color, alcohol, originalwort, bitterness, description, rating, mashVolume,spargeVolume,cookingTime,cookingTemperatur) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ? ,?,?,?)"
-            values = (data['name'], data['type'], data['color'], data['alcohol'], data['originalwort'], data['bitterness'], data['description'], data['rating'], data['mashVolume'], data['spargeVolume'], data['cookingTime'], data['cookingTemperatur'])
+            query = sql_queries.ADD_BEER
+            values = (
+                data['name'], data['type'], data['color'], data['alcohol'], data['originalwort'], data['bitterness'],
+                data['description'], data['rating'], data['mashVolume'], data['spargeVolume'], data['cookingTime'],
+                data['cookingTemperatur']
+            )
             cursor.execute(query, values)
-            self.lastId = cursor.lastrowid
+            self.last_id = cursor.lastrowid
             conn.commit()
-            self.addMaltsToBeer(data)
-            self.addHopsToBeer(data)
-            self.addYeastToBeer(data)
-            self.addFermenationSteps(data)
+            self.add_malts_to_beer(data)
+            self.add_hops_to_beer(data)
+            self.add_yeast_to_beer(data)
+            self.add_fermenation_steps(data)
 
-    def addMaltsToBeer(self, data):
-        malts = data['malts']
-        for malt in malts:
-            with self.get_connection() as conn:
-                cursor = conn.cursor()
-                query = "INSERT INTO BeerMalts (beer_id, malts_id, quantity) VALUES (?, ?, ?)"
-                values = (self.lastId, malt['id'], malt['quantity'])
-                cursor.execute(query, values)
-                conn.commit()
-    def addHopsToBeer(self, data):
-        hops = data['wortBoiling']['hops']
-        for hop in hops:
-            with self.get_connection() as conn:
-                cursor = conn.cursor()
-                query = "INSERT INTO BeerHops (beer_id, hops_id, quantity, time) VALUES (?, ?, ?, ?)"
-                values = (self.lastId, hop['id'], hop['quantity'], hop['time'])
-                cursor.execute(query, values)
-                conn.commit()
-
-    def addYeastToBeer(self, data):
-        yeasts = data['fermentationMaturation']['yeast']
-        for yeast in yeasts:
-            with self.get_connection() as conn:
-                cursor = conn.cursor()
-                query = "INSERT INTO BeerYeast (beer_id, yeast_id, quantity) VALUES (?, ?,?)"
-                values = (self.lastId, yeast['id'], yeast['quantity'])
-                cursor.execute(query, values)
-                conn.commit()
-
-    def addFermenationSteps(self, data):
-        fermentationSteps = data['fermentationSteps']
-        for fermentationStep in fermentationSteps:
-            with self.get_connection() as conn:
-                cursor = conn.cursor()
-                query = "INSERT INTO FermentationSteps (beer_id, type, temperature, time) VALUES (?, ?, ?, ?)"
-                values = (self.lastId, fermentationStep['type'], fermentationStep['temperature'], fermentationStep['time'])
-                cursor.execute(query, values)
-                conn.commit()
-
-
-
-    def add_Malts(self,data):
+    def add_malts_to_beer(self, data):
+        malts = data.get('malts', [])
+        if not malts:
+            return
         with self.get_connection() as conn:
             cursor = conn.cursor()
-            query = "INSERT INTO Malts (name, description, ebc) VALUES (?, ?, ?)"
-            values = (data['name'],data['description'], data['ebc'])
+            for malt in malts:
+                query = sql_queries.ADD_BEERMALTS  # <-- ausgelagert
+                values = (self.lastid, malt['id'], malt['quantity'])
+                cursor.execute(query, values)
+            conn.commit()
+
+    def add_hops_to_beer(self, data):
+        hops = data.get('wortBoiling', {}).get('hops', [])
+        if not hops:
+            return
+        with self.get_connection() as conn:
+            cursor = conn.cursor()
+            for hop in hops:
+                query = sql_queries.ADD_BEERHOPS  # <-- ausgelagert
+                values = (self.lastid, hop['id'], hop['quantity'], hop['time'])
+                cursor.execute(query, values)
+            conn.commit()
+
+    def add_yeast_to_beer(self, data):
+        yeasts = data.get('fermentationMaturation', {}).get('yeast', [])
+        if not yeasts:
+            return
+        with self.get_connection() as conn:
+            cursor = conn.cursor()
+            for yeast in yeasts:
+                query = sql_queries.ADD_BEERYEAST  # <-- ausgelagert
+                values = (self.lastid, yeast['id'], yeast['quantity'])
+                cursor.execute(query, values)
+            conn.commit()
+
+    def add_fermentation_steps(self, data):
+        fermentation_steps = data.get('fermentationSteps', [])
+        if not fermentation_steps:
+            return
+        with self.get_connection() as conn:
+            cursor = conn.cursor()
+            for fermentation_step in fermentation_steps:
+                query = sql_queries.ADD_FERMENTATIONSTEPS  # <-- ausgelagert
+                values = (self.lastid, fermentation_step['type'], fermentation_step['temperature'], fermentation_step['time'])
+                cursor.execute(query, values)
+            conn.commit()
+
+    def add_malts(self, data):
+        with self.get_connection() as conn:
+            cursor = conn.cursor()
+            query = sql_queries.ADD_MALTS
+            values = (data['name'], data['description'], data['ebc'])
             cursor.execute(query, values)
             conn.commit()
 
-    def add_Hop(self,data):
+    def add_hop(self, data):
         with self.get_connection() as conn:
             cursor = conn.cursor()
-            query = "INSERT INTO Hops (name, description, type ,alpha) VALUES (?, ?, ?,?)"
-            values = (data['name'],data['description'], data['type'] ,data['alpha'])
+            query = sql_queries.ADD_HOP
+            values = (data['name'], data['description'], data['type'], data['alpha'])
             cursor.execute(query, values)
             conn.commit()
 
-    def add_Yeast(self, data):
+    def add_yeast(self, data):
         with self.get_connection() as conn:
             cursor = conn.cursor()
-            query = "INSERT INTO Yeasts (name,evg,description,temperature, type) VALUES (?, ?, ?, ?,?)"
-            values = (data['name'],data['evg'],data['description'], data['temperature'], data['type'], )
+            query = sql_queries.ADD_YEAST
+            values = (data['name'], data['evg'], data['description'], data['temperature'], data['type'])
             try:
                 cursor.execute(query, values)
                 conn.commit()
@@ -172,25 +130,41 @@ LEFT JOIN
     def get_malts(self):
         with self.get_connection() as conn:
             cursor = conn.cursor()
-            cursor.execute("SELECT * FROM Malts")
+            cursor.execute(sql_queries.GET_MALTS)
             malts = maltsModel.parse_malts_result(cursor.fetchall())
-            jsonMalts = json.dumps(malts, indent=4)
-            return jsonMalts
+            return malts
 
     def get_hops(self):
         with self.get_connection() as conn:
             cursor = conn.cursor()
-            cursor.execute("SELECT * FROM Hops")
+            cursor.execute(sql_queries.GET_HOPS)
             hops = hopsModel.parse_hops_result(cursor.fetchall())
-            jsonHops = json.dumps(hops, indent=4)
-            return jsonHops
+            return hops
 
     def get_yeasts(self):
         with self.get_connection() as conn:
             cursor = conn.cursor()
-            cursor.execute("SELECT * FROM Yeasts")
+            cursor.execute(sql_queries.GET_YEASTS)
             yeasts = yeastsModel.parse_yeasts_result(cursor.fetchall())
-            jsonYeasts = json.dumps(yeasts, indent=4)
-            return jsonYeasts
+            return yeasts
 
+    def get_finished_beers(self):
+        with self.get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute(sql_queries.GET_FINISHED_BEERS)
+            columns = [desc[0] for desc in cursor.description]
+            result = [dict(zip(columns, row)) for row in cursor.fetchall()]
+            return result
 
+    def add_finished_beer(self, data):
+        with self.get_connection() as conn:
+            cursor = conn.cursor()
+            query = sql_queries.ADD_FINISHED_BEER
+            values = (
+                data.get('note'),
+                data.get('originalwort'),
+                data.get('residual_extract'),
+                data.get('beer_id')
+            )
+            cursor.execute(query, values)
+            conn.commit()

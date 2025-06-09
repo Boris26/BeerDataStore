@@ -4,101 +4,114 @@ from BeerDatabase import BeerDatabase
 
 app = Flask(__name__)
 CORS(app)
-# Instanz der BeerDatabase-Klasse erstellen
-beer_db = BeerDatabase('beer')
+beer_db = BeerDatabase('beer.db')
 beer_db.connect()
 
-# API-Endpunkt zum Abrufen aller Bierdaten
+
 @app.route('/beers', methods=['GET'])
 def get_beers():
-    beers = beer_db.get_beers()
-    return jsonify(beers)
+    try:
+        beers = beer_db.get_beers()
+        return jsonify(beers)
+    except Exception as e:
+        return jsonify(error=str(e)), 500
 
-# API-Endpunkt zum Hinzufügen eines neuen Bierdatensatzes
 @app.route('/beer', methods=['POST'])
 def add_beer():
-    data = request.get_json()
-    beer_db.add_beer(data)
-    return jsonify(message="Beer added successfully")
+    try:
+        data = request.get_json()
+        beer_db.add_beer(data)
+        return jsonify(message="Beer added successfully")
+    except Exception as e:
+        return jsonify(error=str(e)), 500
+
+@app.route('/aktivebeer', methods=['GET'])
+def get_aktivebeer():
+    try:
+        beer = beer_db.get_aktiv_beer()
+        return jsonify(beer)
+    except Exception as e:
+        return jsonify(error=str(e)), 500
 
 @app.route('/malt', methods=['POST'])
 def add_malts():
-    data = request.get_json()
-    beer_db.add_Malts(data)
-    return jsonify(message="Malts added successfully")
+    try:
+        data = request.get_json()
+        beer_db.add_malts(data)
+        return jsonify(message="Malts added successfully")
+    except Exception as e:
+        return jsonify(error=str(e)), 500
 
 @app.route('/malts', methods=['GET'])
 def get_malts():
-    malts = beer_db.get_malts()
-
-    return jsonify(malts)
+    try:
+        malts = beer_db.get_malts()
+        return jsonify(malts)
+    except Exception as e:
+        return jsonify(error=str(e)), 500
 
 @app.route('/hop', methods=['POST'])
 def add_hops():
-    data = request.get_json()
-    beer_db.add_Hop(data)
-    return jsonify(message="Hops added successfully")
+    try:
+        data = request.get_json()
+        beer_db.add_hop(data)
+        return jsonify(message="Hops added successfully")
+    except Exception as e:
+        return jsonify(error=str(e)), 500
 
 @app.route('/hops', methods=['GET'])
 def get_hops():
-    hops = beer_db.get_hops()
-    return jsonify(hops)
+    try:
+        hops = beer_db.get_hops()
+        return jsonify(hops)
+    except Exception as e:
+        return jsonify(error=str(e)), 500
 
 @app.route('/yeast', methods=['POST'])
 def add_yeast():
-    data = request.get_json()
     try:
-        beer_db.add_Yeast(data)
-        return jsonify(message="Yeast added successfully"),200
+        data = request.get_json()
+        beer_db.add_yeast(data)
+        return jsonify(message="Yeast added successfully"), 200
     except Exception as e:
-        return jsonify(error=str(e)),201
-@app.errorhandler(404)
-def not_found():
-    return jsonify(message="Endpoint not found"), 404
-
-@app.errorhandler(500)
-def internal_server_error():
-    return jsonify(message="Internal server error"), 500
-
-
+        return jsonify(error=str(e)), 500
 
 @app.route('/yeasts', methods=['GET'])
 def get_yeast():
-    yeast = beer_db.get_yeasts()
-    return jsonify(yeast)
+    try:
+        yeast = beer_db.get_yeasts()
+        return jsonify(yeast)
+    except Exception as e:
+        return jsonify(error=str(e)), 500
 
-@app.route('/fermentation', methods=['POST'])
-def add_fermentation():
-    data = request.get_json()
-    beer_db.add_Fermentation(data['name'], data['description'], data['temperature'])
-    return jsonify(message="Fermentation added successfully")
-
-@app.route('/fermentation', methods=['GET'])
-def get_fermentation():
-    fermentation = beer_db.get_fermentation()
-    return jsonify(fermentation)
-
-@app.route('/fermentationmaturation', methods=['POST'])
-def add_fermentationmaturation():
-    data = request.get_json()
-    beer_db.add_FermentationMaturation(data['name'], data['description'], data['temperature'])
-    return jsonify(message="FermentationMaturation added successfully")
-
-@app.route('/fermentationmaturation', methods=['GET'])
-def get_fermentationmaturation():
-    fermentationmaturation = beer_db.get_fermentationmaturation()
-    return jsonify(fermentationmaturation)
-
-@app.route('/temperatur', methods=['GET'])
-def get_temperature():
-    temperature = 20
-    return jsonify(temperature)
+@app.route('/finishedbeers', methods=['GET'])
+def get_finishedbeers():
+    try:
+        finished_beers = beer_db.get_finished_beers()
+        return jsonify(finished_beers)
+    except Exception as e:
+        return jsonify(error=str(e)), 500
 
 
+@app.route('/finishedbeer', methods=['POST'])
+def add_finishedbeer():
+    try:
+        data = request.get_json()
+        beer_db.add_finished_beer(data)
+        return jsonify(message="Finished Beer added successfully")
+    except Exception as e:
+        return jsonify(error=str(e)), 500
 
 
+@app.errorhandler(404)
+def not_found(error=None):
+    return jsonify(message="Endpoint not found"), 404
 
+
+@app.errorhandler(500)
+def internal_server_error(error=None):
+    return jsonify(message="Internal server error"), 500
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run()

@@ -88,7 +88,7 @@ def get_yeast():
 def get_finishedbeers():
     try:
         finished_beers = beer_db.get_finished_beers()
-        return jsonify(finished_beers)
+        return jsonify({"finishedbeers": finished_beers})
     except Exception as e:
         return jsonify(error=str(e)), 500
 

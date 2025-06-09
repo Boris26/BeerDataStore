@@ -32,8 +32,9 @@ class BeerDatabase:
             cursor = conn.cursor()
             cursor.execute(sql_queries.GET_BEERS)
             beers = cursor.fetchall()
-            b = beerModel.parse_beer_result(beers)
-            return b  # Rückgabe als Objekt, nicht als JSON-String
+            b=beerModel.parse_beer_result(beers)
+            json_data=json.dumps(b, indent = 4)
+            return json_data
 
     def add_beer(self, data):
         with self.get_connection() as conn:
@@ -60,7 +61,7 @@ class BeerDatabase:
             cursor = conn.cursor()
             for malt in malts:
                 query = sql_queries.ADD_BEERMALTS  # <-- ausgelagert
-                values = (self.lastid, malt['id'], malt['quantity'])
+                values = (self.last_id, malt['id'], malt['quantity'])
                 cursor.execute(query, values)
             conn.commit()
 
@@ -72,7 +73,7 @@ class BeerDatabase:
             cursor = conn.cursor()
             for hop in hops:
                 query = sql_queries.ADD_BEERHOPS  # <-- ausgelagert
-                values = (self.lastid, hop['id'], hop['quantity'], hop['time'])
+                values = (self.last_id, hop['id'], hop['quantity'], hop['time'])
                 cursor.execute(query, values)
             conn.commit()
 
@@ -84,7 +85,7 @@ class BeerDatabase:
             cursor = conn.cursor()
             for yeast in yeasts:
                 query = sql_queries.ADD_BEERYEAST  # <-- ausgelagert
-                values = (self.lastid, yeast['id'], yeast['quantity'])
+                values = (self.last_id, yeast['id'], yeast['quantity'])
                 cursor.execute(query, values)
             conn.commit()
 
@@ -96,7 +97,7 @@ class BeerDatabase:
             cursor = conn.cursor()
             for fermentation_step in fermentation_steps:
                 query = sql_queries.ADD_FERMENTATIONSTEPS  # <-- ausgelagert
-                values = (self.lastid, fermentation_step['type'], fermentation_step['temperature'], fermentation_step['time'])
+                values = (self.last_id, fermentation_step['type'], fermentation_step['temperature'], fermentation_step['time'])
                 cursor.execute(query, values)
             conn.commit()
 
@@ -132,21 +133,24 @@ class BeerDatabase:
             cursor = conn.cursor()
             cursor.execute(sql_queries.GET_MALTS)
             malts = maltsModel.parse_malts_result(cursor.fetchall())
-            return malts
+            json_data = json.dumps(malts, indent=4)
+            return json_data
 
     def get_hops(self):
         with self.get_connection() as conn:
             cursor = conn.cursor()
             cursor.execute(sql_queries.GET_HOPS)
             hops = hopsModel.parse_hops_result(cursor.fetchall())
-            return hops
+            json_data = json.dumps(hops, indent=4)
+            return json_data
 
     def get_yeasts(self):
         with self.get_connection() as conn:
             cursor = conn.cursor()
             cursor.execute(sql_queries.GET_YEASTS)
             yeasts = yeastsModel.parse_yeasts_result(cursor.fetchall())
-            return yeasts
+            json_data = json.dumps(yeasts, indent=4)
+            return json_data
 
     def get_finished_beers(self):
         with self.get_connection() as conn:

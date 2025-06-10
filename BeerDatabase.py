@@ -5,6 +5,7 @@ import hopsModel
 import maltsModel
 import yeastsModel
 import sql_queries
+import finishedBeerModel  # Modell für FinishedBeers
 
 
 class BeerDatabase:
@@ -32,8 +33,8 @@ class BeerDatabase:
             cursor = conn.cursor()
             cursor.execute(sql_queries.GET_BEERS)
             beers = cursor.fetchall()
-            b=beerModel.parse_beer_result(beers)
-            json_data=json.dumps(b, indent = 4)
+            b = beerModel.parse_beer_result(beers)
+            json_data = json.dumps(b, indent=4)
             return json_data
 
     def add_beer(self, data):
@@ -156,9 +157,8 @@ class BeerDatabase:
         with self.get_connection() as conn:
             cursor = conn.cursor()
             cursor.execute(sql_queries.GET_FINISHED_BEERS)
-            columns = [desc[0] for desc in cursor.description]
-            result = [dict(zip(columns, row)) for row in cursor.fetchall()]
-            return result
+            finished_beers = finishedBeerModel.parse_finished_beers_result(cursor.fetchall())
+            return finished_beers
 
     def add_finished_beer(self, data):
         with self.get_connection() as conn:

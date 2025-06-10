@@ -57,7 +57,7 @@ LEFT JOIN
 
 ADD_BEER = "INSERT INTO Beer (name, type, color, alcohol, originalwort, bitterness, description, rating, mashVolume,spargeVolume,cookingTime,cookingTemperatur) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ? ,?,?,?)"
 
-AKTIVATE_BEER = "UPDATE Beer SET aktiv = 1 WHERE id = ?"
+ACTIVATE_BEER ="UPDATE Beer SET aktiv = 1 WHERE id = ?"
 
 GET_AKTIV_BEER = "SELECT * FROM Beer WHERE aktiv = 1"
 
@@ -73,11 +73,22 @@ GET_HOPS = "SELECT * FROM Hops"
 
 GET_YEASTS = "SELECT * FROM Yeasts"
 
-GET_FINISHED_BEERS = "SELECT * FROM FinishedBeers"
+GET_FINISHED_BEERS = """
+SELECT 
+    FinishedBeers.id,
+    FinishedBeers.note,
+    FinishedBeers.originalwort,
+    FinishedBeers.residual_extract,
+    Beer.name AS beer_name
+FROM 
+    FinishedBeers
+LEFT JOIN 
+    Beer ON FinishedBeers.beer_id = Beer.id
+"""
 
 ADD_FINISHED_BEER = "INSERT INTO FinishedBeers (note, originalwort, residual_extract, beer_id) VALUES (?, ?, ?, ?)"
 
-ADD_BEERMALTS = "INSERT INTO BeerMalts (beer_id, malts_id, quantity) VALUES (?, ?, ?)"
-ADD_BEERHOPS = "INSERT INTO BeerHops (beer_id, hops_id, quantity, time) VALUES (?, ?, ?, ?)"
-ADD_BEERYEAST = "INSERT INTO BeerYeast (beer_id, yeast_id, quantity) VALUES (?, ?, ?)"
-ADD_FERMENTATIONSTEPS = "INSERT INTO FermentationSteps (beer_id, type, temperature, time) VALUES (?, ?, ?, ?)"
+ADD_BEER_MALTS ="INSERT INTO BeerMalts (beer_id, malts_id, quantity) VALUES (?, ?, ?)"
+ADD_BEER_HOPS ="INSERT INTO BeerHops (beer_id, hops_id, quantity, time) VALUES (?, ?, ?, ?)"
+ADD_BEER_YEAST ="INSERT INTO BeerYeast (beer_id, yeast_id, quantity) VALUES (?, ?, ?)"
+ADD_FERMENTATION_STEPS ="INSERT INTO FermentationSteps (beer_id, type, temperature, time) VALUES (?, ?, ?, ?)"
